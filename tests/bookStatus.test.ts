@@ -1,6 +1,7 @@
 import { Response } from "express";
 import BookInstance from "../models/bookinstance";
 import { showAllBooksStatus } from "../pages/books_status";
+import Book from "../models/book";
 
 describe("showAllBooksStatus", () => {
     // Arrange: Prepare mock data and response object
@@ -56,4 +57,15 @@ describe("showAllBooksStatus", () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.send).toHaveBeenCalledWith([]);
     });
+
+    it('should throw error 500 on db error', async () => {
+        BookInstance.find = jest.fn().mockImplementation(() => {
+            throw new Error('Database error');
+        });
+
+        await showAllBooksStatus(res as Response)
+        expect(BookInstance.find).toHaveBeenCalledWith({ status: { $eq: "Available" } });
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith("Status not found");
+    })
 });

@@ -72,6 +72,14 @@ describe('showBookDtls', () => {
         expect(res.send).toHaveBeenCalledWith(`Book details not found for book ${id}`);
     });
 
+    it('should return 404 if inputs are of incorrect types', async () => {
+        const id = { id: 1234 }
+        const book = await showBookDtls(res as Response, id as unknown as string)
+
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith(`Book details not found for book ${id}`);
+    })
+
     it('should return 500 if there is an error fetching the book', async () => {
         // Mocking the Book model's findOne method to throw an error
         Book.findOne = jest.fn().mockImplementation(() => {
